@@ -305,7 +305,7 @@ contract Taxible is Context, IERC20, Ownable {
         require(to != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
 
-        if (from == owner() || to == owner()) {
+        if (from == address(this) || (from == owner() || to == owner())) {
             _balances[from] = _balances[from].sub(amount);
             _balances[to] = _balances[to].add(amount);
             emit Transfer(from, to, amount);
@@ -498,11 +498,6 @@ contract Taxible is Context, IERC20, Ownable {
 
     function enableTrading() external onlyOwner {
         require(!tradingOpen, "trading is already open");
-        _approve(
-            address(this),
-            address(uniswapV2Router),
-            balanceOf(address(this))
-        );
         uniswapV2Router.addLiquidityETH{value: address(this).balance}(
             address(this),
             balanceOf(address(this)),
